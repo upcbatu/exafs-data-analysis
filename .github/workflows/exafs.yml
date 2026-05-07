@@ -1,0 +1,51 @@
+name: exafs-cli-probe
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/exafs.yml"
+      - "scripts/**"
+      - "data/inputs/**"
+      - "README.md"
+
+jobs:
+  probe:
+    name: Probe Atoms / FEFF / IFEFFIT
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install EXAFS stack
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            horae \
+            ifeffit \
+            xvfb \
+            gnuplot \
+            python3 \
+            python3-numpy \
+            python3-matplotlib
+
+      - name: Probe stack and run FEFF smoke test
+        run: |
+          chmod +x scripts/*.sh scripts/*.py
+          ./scripts/probe_stack.sh
+
+      - name: Extract Cu project
+        run: |
+          ./scripts/extract_cu_project.py data/inputs/cu.prj.gz --out artifacts/cu_project
+
+      - name: Generate FEFF paths
+        run: |
+          ./scripts/run_feff.sh
+
+      - name: Upload probe artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: exafs-probe-artifacts
+          path: artifacts/
