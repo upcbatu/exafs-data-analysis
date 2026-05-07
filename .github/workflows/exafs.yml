@@ -7,6 +7,8 @@ on:
       - ".github/workflows/exafs.yml"
       - "scripts/**"
       - "data/inputs/**"
+      - "analysis/**"
+      - "requirements-analysis.txt"
       - "README.md"
 
 jobs:
@@ -17,6 +19,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
 
       - name: Install EXAFS stack
         run: |
@@ -30,6 +37,11 @@ jobs:
             python3-numpy \
             python3-matplotlib
 
+      - name: Install analysis dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements-analysis.txt
+
       - name: Probe stack and run FEFF smoke test
         run: |
           chmod +x scripts/*.sh scripts/*.py
@@ -42,6 +54,13 @@ jobs:
       - name: Generate FEFF paths
         run: |
           ./scripts/run_feff.sh
+
+      - name: Fit EXAFS models
+        run: |
+          ./scripts/fit_exafs_larch.py \
+            --data-dir artifacts/cu_project \
+            --feff-dir artifacts/feff/cu \
+            --out artifacts/analysis
 
       - name: Upload probe artifacts
         uses: actions/upload-artifact@v4
