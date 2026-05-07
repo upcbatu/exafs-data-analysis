@@ -52,13 +52,14 @@ artifacts/feff/cu/feff*.dat
 
 These files are uploaded by CI and are not committed.
 
-## References
+## Command References
 
-- `horae` provides the Demeter/Horae tools used here, including `atoms`,
-  `athena` and `artemis`: https://packages.debian.org/sid/horae
-- `atoms` is the command-line tool used to generate `feff.inp` from
-  `atoms.inp`: https://manpages.debian.org/testing/horae/atoms.1.en.html
-- `ifeffit` provides the command-line XAFS/EXAFS backend and `feffit`:
-  https://packages.debian.org/bookworm/ifeffit
-- The workflow runs on GitHub-hosted Ubuntu runners:
-  https://docs.github.com/en/actions/reference/github-hosted-runners-reference
+| Workflow step | Command or package | Purpose in this repository | Source |
+| --- | --- | --- | --- |
+| Install Demeter/Horae tools | `apt-get install horae` | Installs the Demeter/Horae command and GUI tools used by the pipeline, including `atoms`, `athena` and `artemis`. | [Debian `horae` package](https://packages.debian.org/sid/horae) |
+| Install IFEFFIT tools | `apt-get install ifeffit` | Installs the command-line XAFS/EXAFS backend used here, including `ifeffit` and `feffit`. | [Debian `ifeffit` package](https://packages.debian.org/bookworm/ifeffit) |
+| Generate FEFF input | `atoms -q -f -o feff.inp atoms.inp` | Converts the Cu crystallographic input into a FEFF input file. The `atoms` manpage defines `atoms` as a crystallographic input converter for FEFF and documents the `-o` output option. | [`atoms(1)` manpage](https://manpages.debian.org/testing/horae/atoms.1.en.html) |
+| Check EXAFS backend | `ifeffit -x 'show @commands'` | Starts IFEFFIT non-interactively and prints available IFEFFIT commands for the CI probe log. The package description identifies IFEFFIT as a command-line XAFS analysis program. | [Debian `ifeffit` package](https://packages.debian.org/bookworm/ifeffit) |
+| Run FEFF path generation | `feffit` or `feff6l` | Runs the FEFF-compatible executable available in the installed EXAFS stack. CI records the selected executable and package file list in `artifacts/probe/probe.log`. | [Debian `ifeffit` package](https://packages.debian.org/bookworm/ifeffit) |
+| Extract measured datasets | `scripts/extract_cu_project.py data/inputs/cu.prj.gz` | Extracts the three stored `mu(E)` arrays from the compressed Cu project into CSV/JSON artifacts. This script is repository code because the project file is a serialized Demeter/Athena data container. | [script](scripts/extract_cu_project.py) |
+| Run in CI | `runs-on: ubuntu-22.04` | Executes the workflow on a GitHub-hosted Ubuntu runner. | [GitHub-hosted runners](https://docs.github.com/en/actions/reference/github-hosted-runners-reference) |
