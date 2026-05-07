@@ -13,7 +13,7 @@ fi
 
 FEFF_RUNNER="$(find_feff_runner || true)"
 if [[ -z "$FEFF_RUNNER" ]]; then
-  echo "Missing required FEFF runner: expected feff6l or feffit" >&2
+  echo "Missing required FEFF runner: expected feff8l, feff6, or feff6l" >&2
   exit 1
 fi
 
@@ -24,8 +24,8 @@ cp "$ROOT/data/inputs/atoms.inp" "$OUT/cu/atoms.inp"
 (
   cd "$OUT/cu"
   atoms -q -f -o feff.inp atoms.inp > atoms.stdout.log 2> atoms.stderr.log
-  "$FEFF_RUNNER" > feff.log 2>&1
 )
+run_feff_in_dir "$FEFF_RUNNER" "$OUT/cu" > "$OUT/cu/feff.log" 2>&1
 
 if [[ ! -s "$OUT/cu/feff.inp" ]]; then
   echo "Atoms did not produce feff.inp" >&2

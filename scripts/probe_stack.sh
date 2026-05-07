@@ -34,7 +34,7 @@ uname -a | tee -a "$LOG"
 
 log ""
 log "# Command availability"
-commands=(perl python3 atoms ifeffit feffit feff6l athena artemis gnuplot)
+commands=(perl python3 atoms ifeffit feffit feff8l feff6 feff6l athena artemis gnuplot)
 missing=0
 for cmd in "${commands[@]}"; do
   if command -v "$cmd" >/dev/null 2>&1; then
@@ -49,7 +49,7 @@ FEFF_RUNNER="$(find_feff_runner || true)"
 if [[ -n "$FEFF_RUNNER" ]]; then
   log "OK      FEFF runner -> $FEFF_RUNNER"
 else
-  log "MISSING FEFF runner: expected one of feff6l or feffit"
+  log "MISSING FEFF runner: expected one of feff8l, feff6, or feff6l"
   missing=1
 fi
 
@@ -88,10 +88,7 @@ log "Generated $WORK/feff.inp"
 
 log ""
 log "# FEFF run: $FEFF_RUNNER"
-(
-  cd "$WORK"
-  "$FEFF_RUNNER" > feff.log 2>&1
-)
+run_feff_in_dir "$FEFF_RUNNER" "$WORK" > "$WORK/feff.log" 2>&1
 
 log "FEFF output files:"
 find "$WORK" -maxdepth 1 -type f -print | sort | tee -a "$LOG"

@@ -6,7 +6,7 @@ Reproducible command-line workflow for Cu foil EXAFS data measured at 10 K,
 The pipeline uses the standard Atoms, FEFF and IFEFFIT toolchain:
 
 ```text
-atoms.inp -> atoms -> feff.inp -> feff6l -> FEFF paths
+atoms.inp -> atoms -> feff.inp -> feff6 -> FEFF paths
 cu.prj.gz -> extracted mu(E) datasets
 ```
 
@@ -56,10 +56,10 @@ These files are uploaded by CI and are not committed.
 
 | Workflow step | Command or package | Purpose in this repository | Source |
 | --- | --- | --- | --- |
-| Install Demeter/Horae tools | `apt-get install horae` | Installs the Demeter/Horae command and GUI tools used by the pipeline, including `atoms`, `athena` and `artemis`. | [Debian `horae` package](https://packages.debian.org/sid/horae) |
-| Install IFEFFIT tools | `apt-get install ifeffit` | Installs the command-line XAFS/EXAFS backend used here, including `ifeffit` and `feffit`. | [Debian `ifeffit` package](https://packages.debian.org/bookworm/ifeffit) |
+| Install Demeter/Horae tools | `apt-get install horae` | Installs the Demeter/Horae utilities checked by the pipeline, including `atoms`, `athena` and `artemis`. | [Debian `horae` package](https://packages.debian.org/sid/horae) |
+| Install IFEFFIT tools | `apt-get install ifeffit` | Installs the command-line XAFS/EXAFS backend used here, including `ifeffit`, `feffit` and `feff6`. | [Ubuntu `ifeffit` package](https://launchpad.net/ubuntu/jammy/+package/ifeffit) |
 | Generate FEFF input | `atoms -q -f -o feff.inp atoms.inp` | Converts the Cu crystallographic input into a FEFF input file. The `atoms` manpage defines `atoms` as a crystallographic input converter for FEFF and documents the `-o` output option. | [`atoms(1)` manpage](https://manpages.debian.org/testing/horae/atoms.1.en.html) |
-| Check EXAFS backend | `ifeffit -x 'show @commands'` | Starts IFEFFIT non-interactively and prints available IFEFFIT commands for the CI probe log. The package description identifies IFEFFIT as a command-line XAFS analysis program. | [Debian `ifeffit` package](https://packages.debian.org/bookworm/ifeffit) |
-| Run FEFF path generation | `feffit` or `feff6l` | Runs the FEFF-compatible executable available in the installed EXAFS stack. CI records the selected executable and package file list in `artifacts/probe/probe.log`. | [Debian `ifeffit` package](https://packages.debian.org/bookworm/ifeffit) |
+| Check EXAFS backend | `ifeffit -x 'show @commands'` | Starts IFEFFIT non-interactively and prints available IFEFFIT commands for the CI probe log. The package description identifies IFEFFIT as a command-line XAFS analysis program. | [Ubuntu `ifeffit` package](https://launchpad.net/ubuntu/jammy/+package/ifeffit) |
+| Run FEFF path generation | `feff6` | Runs FEFF6 in the folder containing `feff.inp`, producing FEFF path outputs. CI verifies the installed executable through `dpkg -L ifeffit` in `artifacts/probe/probe.log`. | [Ubuntu `ifeffit` package](https://launchpad.net/ubuntu/jammy/+package/ifeffit) |
 | Extract measured datasets | `scripts/extract_cu_project.py data/inputs/cu.prj.gz` | Extracts the three stored `mu(E)` arrays from the compressed Cu project into CSV/JSON artifacts. This script is repository code because the project file is a serialized Demeter/Athena data container. | [script](scripts/extract_cu_project.py) |
 | Run in CI | `runs-on: ubuntu-22.04` | Executes the workflow on a GitHub-hosted Ubuntu runner. | [GitHub-hosted runners](https://docs.github.com/en/actions/reference/github-hosted-runners-reference) |
