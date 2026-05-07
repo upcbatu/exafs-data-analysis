@@ -37,11 +37,6 @@ jobs:
             python3-numpy \
             python3-matplotlib
 
-      - name: Install analysis dependencies
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -r requirements-analysis.txt
-
       - name: Probe stack and run FEFF smoke test
         run: |
           chmod +x scripts/*.sh scripts/*.py
@@ -55,9 +50,15 @@ jobs:
         run: |
           ./scripts/run_feff.sh
 
+      - name: Install analysis dependencies
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements-analysis.txt
+
       - name: Fit EXAFS models
         run: |
-          ./scripts/fit_exafs_larch.py \
+          .venv/bin/python scripts/fit_exafs_larch.py \
             --data-dir artifacts/cu_project \
             --feff-dir artifacts/feff/cu \
             --out artifacts/analysis

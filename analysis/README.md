@@ -1,12 +1,12 @@
 # EXAFS Fit Analysis
 
 This folder documents the non-interactive fitting layer used after the
-command-line Atoms and FEFF preparation steps.
+command-line Atoms and FEFF6 preparation steps.
 
 The fitting script uses XrayLarch to:
 
 1. convert the extracted `mu(E)` datasets to `chi(k)` with `autobk`;
-2. load the generated FEFF scattering paths;
+2. load the generated FEFF6 `feffNNNN.dat` scattering paths;
 3. fit the 10 K dataset up to 4.5 Angstrom with two models:
    - single-scattering paths only;
    - single- and multiple-scattering paths;

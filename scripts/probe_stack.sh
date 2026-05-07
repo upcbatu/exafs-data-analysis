@@ -45,11 +45,11 @@ for cmd in "${commands[@]}"; do
   fi
 done
 
-FEFF_RUNNER="$(find_feff_runner || true)"
+FEFF_RUNNER="$(find_feff6_runner || true)"
 if [[ -n "$FEFF_RUNNER" ]]; then
-  log "OK      FEFF runner -> $FEFF_RUNNER"
+  log "OK      FEFF6 runner -> $FEFF_RUNNER"
 else
-  log "MISSING FEFF runner: expected one of feff8l, feff6, or feff6l"
+  log "MISSING FEFF6 runner: expected one of feff6 or feff6l"
   missing=1
 fi
 
@@ -59,7 +59,7 @@ run_capture "ifeffit startup" ifeffit -x 'show @commands'
 run_capture "ifeffit package files" dpkg -L ifeffit
 run_capture "horae package files" dpkg -L horae
 if [[ -n "$FEFF_RUNNER" ]]; then
-  run_capture "FEFF runner help" "$FEFF_RUNNER" -h
+  run_capture "FEFF6 runner help" "$FEFF_RUNNER" -h
 fi
 
 if [[ "$missing" -ne 0 ]]; then
@@ -87,16 +87,16 @@ fi
 log "Generated $WORK/feff.inp"
 
 log ""
-log "# FEFF run: $FEFF_RUNNER"
-run_feff_in_dir "$FEFF_RUNNER" "$WORK" > "$WORK/feff.log" 2>&1
+log "# FEFF6 run: $FEFF_RUNNER"
+run_feff6_in_dir "$FEFF_RUNNER" "$WORK" > "$WORK/feff.log" 2>&1
 
 log "FEFF output files:"
 find "$WORK" -maxdepth 1 -type f -print | sort | tee -a "$LOG"
 
 if ! find "$WORK" -maxdepth 1 -name 'feff*.dat' | grep -q .; then
-  log "FEFF did not produce feff*.dat path files."
+  log "FEFF6 did not produce feff*.dat path files."
   exit 1
 fi
 
 log ""
-log "Probe passed: Atoms and FEFF can run headlessly."
+log "Probe passed: Atoms and FEFF6 can run headlessly."

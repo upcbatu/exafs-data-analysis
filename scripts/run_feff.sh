@@ -11,9 +11,9 @@ if ! command -v atoms >/dev/null 2>&1; then
   exit 1
 fi
 
-FEFF_RUNNER="$(find_feff_runner || true)"
+FEFF_RUNNER="$(find_feff6_runner || true)"
 if [[ -z "$FEFF_RUNNER" ]]; then
-  echo "Missing required FEFF runner: expected feff8l, feff6, or feff6l" >&2
+  echo "Missing required FEFF6 runner: expected feff6 or feff6l" >&2
   exit 1
 fi
 
@@ -25,7 +25,7 @@ cp "$ROOT/data/inputs/atoms.inp" "$OUT/cu/atoms.inp"
   cd "$OUT/cu"
   atoms -q -f -o feff.inp atoms.inp > atoms.stdout.log 2> atoms.stderr.log
 )
-run_feff_in_dir "$FEFF_RUNNER" "$OUT/cu" > "$OUT/cu/feff.log" 2>&1
+run_feff6_in_dir "$FEFF_RUNNER" "$OUT/cu" > "$OUT/cu/feff.log" 2>&1
 
 if [[ ! -s "$OUT/cu/feff.inp" ]]; then
   echo "Atoms did not produce feff.inp" >&2
@@ -33,8 +33,8 @@ if [[ ! -s "$OUT/cu/feff.inp" ]]; then
 fi
 
 if ! find "$OUT/cu" -maxdepth 1 -name 'feff*.dat' | grep -q .; then
-  echo "FEFF did not produce feff*.dat files" >&2
+  echo "FEFF6 did not produce feff*.dat files" >&2
   exit 1
 fi
 
-printf 'FEFF output written to %s\n' "$OUT/cu"
+printf 'FEFF6 output written to %s\n' "$OUT/cu"

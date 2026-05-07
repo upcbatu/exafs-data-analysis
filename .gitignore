@@ -2,6 +2,7 @@ artifacts/*
 !artifacts/.gitkeep
 exafs-probe-artifacts/
 private/
+.venv/
 __pycache__/
 *.pyc
 .DS_Store

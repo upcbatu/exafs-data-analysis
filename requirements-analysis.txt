@@ -1,1 +1,2 @@
 xraylarch==2026.1.1
+matplotlib>=3.8
