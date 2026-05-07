@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
@@ -186,6 +187,38 @@ def feffit_report_text(out: Any) -> str:
         return feffit_report(out)
 
 
+def parse_fit_report(report: str) -> dict[str, Any]:
+    stats_keys = {
+        "n_variables": "n_variables",
+        "n_independent": "n_independent",
+        "chi_square": "chi_square",
+        "reduced chi_square": "reduced_chi_square",
+        "r-factor": "r_factor",
+    }
+    parsed: dict[str, Any] = {"statistics": {}, "parameters": {}}
+    for line in report.splitlines():
+        stat_match = re.match(r"\s*([A-Za-z0-9_ -]+?)\s+=\s+([-+0-9.eE]+)\s*$", line)
+        if stat_match:
+            key = stat_match.group(1).strip()
+            if key in stats_keys:
+                parsed["statistics"][stats_keys[key]] = float(stat_match.group(2))
+            continue
+
+        param_match = re.match(
+            r"\s*([A-Za-z0-9_]+)\s+=\s+([-+0-9.eE]+)"
+            r"(?:\s+\+/-\s+([-+0-9.eE]+))?",
+            line,
+        )
+        if param_match:
+            name = param_match.group(1)
+            stderr = param_match.group(3)
+            parsed["parameters"][name] = {
+                "value": float(param_match.group(2)),
+                "stderr": float(stderr) if stderr is not None else None,
+            }
+    return parsed
+
+
 def ensure_r_arrays(group: Any, *, kmin: float, kmax: float, kw: int, dk: float) -> None:
     if hasattr(group, "r") and hasattr(group, "chir_mag"):
         return
@@ -304,6 +337,7 @@ def run_full_fit(
     model_dir = out_dir / name
     model_dir.mkdir(parents=True, exist_ok=True)
     report = feffit_report_text(out)
+    parsed_report = parse_fit_report(report)
     write_report(model_dir / "fit_report.txt", report)
     plot_fit(dset, model_dir / "fit_plot.png", title=name, kmin=2.0, kmax=18.0, rmax=5.5)
 
@@ -320,15 +354,12 @@ def run_full_fit(
             }
             for item in selected
         ],
-        "statistics": {
-            "r_factor": stat_value(out, "rfactor") or stat_value(out, "r_factor"),
-            "chi_square": stat_value(out, "chi_square"),
-            "reduced_chi_square": stat_value(out, "chi_reduced") or stat_value(out, "redchi"),
-            "n_variables": stat_value(out, "nvarys") or stat_value(out, "n_variables"),
-            "n_independent": stat_value(out, "n_idp") or stat_value(out, "n_independent"),
-        },
+        "statistics": parsed_report["statistics"],
         "parameters": {
-            name: {"value": value, "stderr": stderr}
+            name: parsed_report["parameters"].get(
+                name,
+                {"value": value, "stderr": stderr},
+            )
             for name in ["amp", "del_e0", "alpha", "sig2_1", "sig2_2", "sig2_3"]
             for value, stderr in [param_value(pars, name)]
         },
@@ -383,13 +414,25 @@ def run_temperature_fit(
 
     model_dir = out_dir / "first_shell_temperature"
     model_dir.mkdir(parents=True, exist_ok=True)
-    write_report(model_dir / "fit_report.txt", feffit_report_text(out))
+    report = feffit_report_text(out)
+    parsed_report = parse_fit_report(report)
+    write_report(model_dir / "fit_report.txt", report)
 
     rows = []
     for dataset, dset in zip(datasets, dsets):
         temp = dataset.temperature_k
-        delr, delr_err = param_value(pars, f"delr_{temp}")
-        sig2, sig2_err = param_value(pars, f"sig2_{temp}")
+        delr_param = parsed_report["parameters"].get(f"delr_{temp}")
+        sig2_param = parsed_report["parameters"].get(f"sig2_{temp}")
+        delr, delr_err = (
+            (delr_param["value"], delr_param["stderr"])
+            if delr_param
+            else param_value(pars, f"delr_{temp}")
+        )
+        sig2, sig2_err = (
+            (sig2_param["value"], sig2_param["stderr"])
+            if sig2_param
+            else param_value(pars, f"sig2_{temp}")
+        )
         r_value = first_path.reff + delr if delr is not None else None
         rows.append(
             {
@@ -447,15 +490,12 @@ def run_temperature_fit(
             "reff": first_path.reff,
             "amp_ratio": first_path.amp_ratio,
         },
-        "statistics": {
-            "r_factor": stat_value(out, "rfactor") or stat_value(out, "r_factor"),
-            "chi_square": stat_value(out, "chi_square"),
-            "reduced_chi_square": stat_value(out, "chi_reduced") or stat_value(out, "redchi"),
-            "n_variables": stat_value(out, "nvarys") or stat_value(out, "n_variables"),
-            "n_independent": stat_value(out, "n_idp") or stat_value(out, "n_independent"),
-        },
+        "statistics": parsed_report["statistics"],
         "common_parameters": {
-            name: {"value": value, "stderr": stderr}
+            name: parsed_report["parameters"].get(
+                name,
+                {"value": value, "stderr": stderr},
+            )
             for name in ["amp", "del_e0"]
             for value, stderr in [param_value(pars, name)]
         },
