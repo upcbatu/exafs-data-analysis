@@ -1,0 +1,81 @@
+[
+  {
+    "group": "weai",
+    "label": "cu010k.dat",
+    "points": 612,
+    "source_file": "/home/bruce/codes/horae/examples/athena/cu010k.dat",
+    "e0_eV": 8977.58,
+    "edge_step": 2.3266765,
+    "fft_kmin": 2.0,
+    "fft_kmax": 18.0,
+    "fft_window": "hanning",
+    "titles": [
+      "Cu foil at 10K",
+      "cu10k.dat    : this file is part of the uwxafs 3.0 distribution",
+      "data taken at NSLS beamline X-11A Sept 1992",
+      "by M Newville, B Ravel, and Y Zhang",
+      "foil of 99.999 Cu rolled and annealled to ~12 microns",
+      "sample prepared by M Newville",
+      "From X-11A :",
+      "2-SI111 HC/2D= 1977.260 STPDEG=6400. STPMMZ= 40.",
+      "FOCUS=F TRANSLT=F  E0= 8980.0 NREG= 3 NPTS= 611 NSCLRS= 3 EF= .0",
+      "SRB=     -193.7    -43.5     30.0   2381.3",
+      "DEL=         10.020     .483     .050K",
+      "SEC=             1.000    1.000    1.000",
+      "DETECTORSI0      I       If",
+      "GAINS           8       7      10",
+      "OFFSETS     51284   50016   48319"
+    ],
+    "csv": "cu010k.csv"
+  },
+  {
+    "group": "dpwo",
+    "label": "cu050k.dat",
+    "points": 620,
+    "source_file": "/home/bruce/codes/horae/examples/athena/cu050k.dat",
+    "e0_eV": 8977.58,
+    "edge_step": 2.3169363,
+    "fft_kmin": 2.0,
+    "fft_kmax": 18.0,
+    "fft_window": "hanning",
+    "titles": [
+      "TR: NSLS/X11 EDC-5.02 15-Sep-92 02:35:54 E- ENERGY=2.584GEV",
+      "Cu foil, 50K, rolled and annealled foil by matt",
+      "2-SI111 HC/2D= 1977.260 STPDEG=6400. STPMMZ= 40. FOCUS=F TRANSLT=F",
+      "E0= 8980.0 NREG= 3 NPTS= 619 NSCLRS= 3 EF=     .0",
+      "SRB=   -197.6    -47.3     30.0   2381.3",
+      "DEL=           10.020     .483     .050K",
+      "SEC=             1.000    1.000    1.000",
+      "DETECTORSI0      I       If",
+      "GAINS           8       7      10",
+      "OFFSETS     51284   50016   48319",
+      "nsls 0.2p, Bruce Ravel   TR mode"
+    ],
+    "csv": "cu050k.csv"
+  },
+  {
+    "group": "wxff",
+    "label": "cu150k.dat",
+    "points": 618,
+    "source_file": "/home/bruce/codes/horae/examples/athena/cu150k.dat",
+    "e0_eV": 8977.97,
+    "edge_step": 1.4844997,
+    "fft_kmin": 2.0,
+    "fft_kmax": 12.0,
+    "fft_window": "hanning",
+    "titles": [
+      "TR: NSLS/X11 EDC-5.02 15-Sep-92 04:05:24 E- ENERGY=2.584GEV",
+      "Cu foil, 150K   x11 standard foil",
+      "2-SI111 HC/2D= 1977.260 STPDEG=6400. STPMMZ= 40. FOCUS=F TRANSLT=F",
+      "E0= 8980.0 NREG= 3 NPTS= 636 NSCLRS= 3 EF=     .0",
+      "SRB=   -205.8    -55.6     30.0   2381.3",
+      "DEL=           10.020     .483     .050K",
+      "SEC=             1.000    1.000    1.000",
+      "DETECTORSI0      I       If",
+      "GAINS           8       7      10",
+      "OFFSETS     51284   50016   48319",
+      "nsls 0.2p, Bruce Ravel   TR mode"
+    ],
+    "csv": "cu150k.csv"
+  }
+]

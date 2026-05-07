@@ -1,5 +1,3 @@
-artifacts/*
-!artifacts/.gitkeep
 exafs-probe-artifacts/
 private/
 .venv/

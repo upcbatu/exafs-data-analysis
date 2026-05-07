@@ -1,0 +1,48 @@
+ Feff 6L.02
+ Copper example
+ Calculating potentials and phases...
+     free atom potential and density for atom type    0
+     free atom potential and density for atom type    1
+     overlapped potential and density for unique potential    0
+     overlapped potential and density for unique potential    1
+     muffin tin radii and interstitial parameters
+     phase shifts for unique potential    0
+     phase shifts for unique potential    1
+ Preparing plane wave scattering amplitudes...
+   nncrit in prcrit       9
+ Searching for paths...
+    WARNING in PATHS Module:
+       rmax > distance to most distant atom.
+       Some paths may be missing.
+   rmax, ratx      5.00000     4.42133
+     Rmax  5.0000  keep and heap limits   0.0000000   0.0000000
+    Preparing neighbor table
+     nfound  nheap  nheapx  nsc    r
+     Paths found      306   (nheapx, nbx      43   3)
+ Eliminating path degeneracies...
+     Plane wave chi amplitude filter   2.50%
+     Unique paths      7,  total paths     282
+ Calculating EXAFS parameters...
+     Curved wave chi amplitude ratio   4.00%
+     Discard feff.dat for paths with cw ratio <   2.67%
+     path  cw ratio     deg    nleg  reff
+       1   100.000    12.000     2   2.5527
+       2    22.981     6.000     2   3.6100
+       3    10.572    48.000     3   3.8290
+       4     8.493    48.000     3   4.3577
+       5    55.387    24.000     2   4.4213
+       6    10.660    48.000     3   4.7633
+       7    21.357    96.000     3   4.7633
+     7 paths kept,    7 examined.
+ Calculating chi...
+     Use all paths with cw amplitude ratio   4.00%
+     Use Debye-Waller factors from files.dat.  S02  1.000
+     feff0001.dat     100.0000
+     feff0002.dat      22.9810
+     feff0003.dat      10.5720
+     feff0004.dat       8.4930
+     feff0005.dat      55.3870
+     feff0006.dat      10.6600
+     feff0007.dat      21.3570
+  ff2chi done,    7/   7 paths used.
+ Feff done.  Have a nice day.

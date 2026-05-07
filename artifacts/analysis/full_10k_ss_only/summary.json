@@ -1,0 +1,60 @@
+{
+  "model": "full_10k_ss_only",
+  "temperature_k": 10,
+  "paths": [
+    {
+      "file": "feff0001.dat",
+      "nleg": 2,
+      "degeneracy": 12.0,
+      "reff": 2.5527,
+      "amp_ratio": 100.0
+    },
+    {
+      "file": "feff0002.dat",
+      "nleg": 2,
+      "degeneracy": 6.0,
+      "reff": 3.61,
+      "amp_ratio": 22.981
+    },
+    {
+      "file": "feff0005.dat",
+      "nleg": 2,
+      "degeneracy": 24.0,
+      "reff": 4.4213,
+      "amp_ratio": 55.387
+    }
+  ],
+  "statistics": {
+    "n_variables": 6.0,
+    "n_independent": 32.576,
+    "chi_square": 855.494601,
+    "reduced_chi_square": 32.1900825,
+    "r_factor": 0.04492432
+  },
+  "parameters": {
+    "amp": {
+      "value": 0.9315294,
+      "stderr": 0.0817755
+    },
+    "del_e0": {
+      "value": 4.286176,
+      "stderr": 0.9488508
+    },
+    "alpha": {
+      "value": -0.001477,
+      "stderr": 0.0017082
+    },
+    "sig2_1": {
+      "value": 0.0036308,
+      "stderr": 0.00050997
+    },
+    "sig2_2": {
+      "value": 0.0048841,
+      "stderr": 0.0016521
+    },
+    "sig2_3": {
+      "value": 0.0050319,
+      "stderr": 0.0008151
+    }
+  }
+}

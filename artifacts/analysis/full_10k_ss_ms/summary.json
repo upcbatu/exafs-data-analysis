@@ -1,0 +1,88 @@
+{
+  "model": "full_10k_ss_ms",
+  "temperature_k": 10,
+  "paths": [
+    {
+      "file": "feff0001.dat",
+      "nleg": 2,
+      "degeneracy": 12.0,
+      "reff": 2.5527,
+      "amp_ratio": 100.0
+    },
+    {
+      "file": "feff0002.dat",
+      "nleg": 2,
+      "degeneracy": 6.0,
+      "reff": 3.61,
+      "amp_ratio": 22.981
+    },
+    {
+      "file": "feff0003.dat",
+      "nleg": 3,
+      "degeneracy": 48.0,
+      "reff": 3.829,
+      "amp_ratio": 10.572
+    },
+    {
+      "file": "feff0004.dat",
+      "nleg": 3,
+      "degeneracy": 48.0,
+      "reff": 4.3577,
+      "amp_ratio": 8.493
+    },
+    {
+      "file": "feff0005.dat",
+      "nleg": 2,
+      "degeneracy": 24.0,
+      "reff": 4.4213,
+      "amp_ratio": 55.387
+    },
+    {
+      "file": "feff0006.dat",
+      "nleg": 3,
+      "degeneracy": 48.0,
+      "reff": 4.7633,
+      "amp_ratio": 10.66
+    },
+    {
+      "file": "feff0007.dat",
+      "nleg": 3,
+      "degeneracy": 96.0,
+      "reff": 4.7633,
+      "amp_ratio": 21.357
+    }
+  ],
+  "statistics": {
+    "n_variables": 6.0,
+    "n_independent": 32.576,
+    "chi_square": 399.831576,
+    "reduced_chi_square": 15.0446437,
+    "r_factor": 0.02099623
+  },
+  "parameters": {
+    "amp": {
+      "value": 0.9552023,
+      "stderr": 0.0572025
+    },
+    "del_e0": {
+      "value": 5.0677771,
+      "stderr": 0.655166
+    },
+    "alpha": {
+      "value": -0.00094044,
+      "stderr": 0.0011824
+    },
+    "sig2_1": {
+      "value": 0.0037356,
+      "stderr": 0.00035117
+    },
+    "sig2_2": {
+      "value": 0.0051177,
+      "stderr": 0.0011269
+    },
+    "sig2_3": {
+      "value": 0.0047102,
+      "stderr": 0.00056593
+    }
+  }
+}
