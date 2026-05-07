@@ -13,6 +13,10 @@ The fitting script uses XrayLarch to:
 4. fit the first Cu-Cu shell for 10 K, 50 K and 150 K;
 5. write reports, plots and summary tables under `artifacts/analysis/`.
 
+The full 10 K plots include k-space, magnitude R-space, real/imaginary R-space
+and residual panels with the fitted R-window shaded. The workflow also writes a
+single SS-only vs SS+MS comparison CSV and PNG.
+
 Run after the FEFF artifacts have been generated:
 
 ```bash

@@ -55,6 +55,14 @@ jobs:
           python3 -m venv .venv
           .venv/bin/python -m pip install --upgrade pip
           .venv/bin/python -m pip install -r requirements-analysis.txt
+          mkdir -p artifacts/analysis_env
+          .venv/bin/python -m pip freeze > artifacts/analysis_env/pip_freeze.txt
+          .venv/bin/python - <<'PY' > artifacts/analysis_env/python_larch_version.txt
+          import sys
+          import larch
+          print(sys.version)
+          print(getattr(larch, "__version__", "unknown"))
+          PY
 
       - name: Fit EXAFS models
         run: |

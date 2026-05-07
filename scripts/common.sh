@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+ATOMS_CLUSTER_RMAX="${ATOMS_CLUSTER_RMAX:-6.0}"
+FEFF_PATH_RMAX="${FEFF_PATH_RMAX:-5.0}"
+
 find_feff6_runner() {
   local candidates=(feff6 feff6l)
   local cmd
@@ -10,6 +13,22 @@ find_feff6_runner() {
     fi
   done
   return 1
+}
+
+generate_feff6_input() {
+  local work_dir="$1"
+  (
+    cd "$work_dir"
+    atoms -q -f -r "$ATOMS_CLUSTER_RMAX" -o feff.inp atoms.inp > atoms.stdout.log 2> atoms.stderr.log
+    awk -v rmax="$FEFF_PATH_RMAX" '
+      /^[[:space:]]*RMAX[[:space:]]+/ {
+        printf " RMAX        %s\n", rmax
+        next
+      }
+      { print }
+    ' feff.inp > feff.inp.tmp
+    mv feff.inp.tmp feff.inp
+  )
 }
 
 run_feff6_in_dir() {

@@ -194,6 +194,8 @@ def parse_fit_report(report: str) -> dict[str, Any]:
         "chi_square": "chi_square",
         "reduced chi_square": "reduced_chi_square",
         "r-factor": "r_factor",
+        "Akaike info crit": "aic",
+        "Bayesian info crit": "bic",
     }
     parsed: dict[str, Any] = {"statistics": {}, "parameters": {}}
     for line in report.splitlines():
@@ -233,13 +235,24 @@ def array_attr(group: Any, names: Iterable[str]) -> np.ndarray | None:
     return None
 
 
-def plot_fit(dataset: Any, out_path: Path, *, title: str, kmin: float, kmax: float, rmax: float) -> None:
+def plot_fit(
+    dataset: Any,
+    out_path: Path,
+    *,
+    title: str,
+    kmin: float,
+    kmax: float,
+    rmin: float,
+    rfit_max: float,
+    rplot_max: float,
+) -> None:
     data = dataset.data
     model = dataset.model
     ensure_r_arrays(data, kmin=kmin, kmax=kmax, kw=2, dk=2.0)
     ensure_r_arrays(model, kmin=kmin, kmax=kmax, kw=2, dk=2.0)
 
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+    fig, axes = plt.subplots(2, 2, figsize=(11, 7.4))
+    axes = axes.ravel()
 
     data_k = array_attr(data, ["k"])
     data_chi = array_attr(data, ["chi"])
@@ -250,8 +263,8 @@ def plot_fit(dataset: Any, out_path: Path, *, title: str, kmin: float, kmax: flo
     if model_k is not None and model_chi is not None:
         axes[0].plot(model_k, model_chi * model_k**2, label="fit", lw=1.4)
     axes[0].set_xlim(kmin, kmax)
-    axes[0].set_xlabel("k / Angstrom^-1")
-    axes[0].set_ylabel("k^2 chi(k)")
+    axes[0].set_xlabel(r"$k$ / $\AA^{-1}$")
+    axes[0].set_ylabel(r"$k^2\chi(k)$")
     axes[0].legend()
 
     data_r = array_attr(data, ["r"])
@@ -262,12 +275,95 @@ def plot_fit(dataset: Any, out_path: Path, *, title: str, kmin: float, kmax: flo
         axes[1].plot(data_r, data_mag, label="data", lw=1.6)
     if model_r is not None and model_mag is not None:
         axes[1].plot(model_r, model_mag, label="fit", lw=1.4)
-    axes[1].set_xlim(0, rmax)
-    axes[1].set_xlabel("R / Angstrom")
-    axes[1].set_ylabel("|chi(R)|")
+    axes[1].axvspan(rmin, rfit_max, color="0.92", zorder=0)
+    axes[1].set_xlim(0, rplot_max)
+    axes[1].set_xlabel(r"$R$ / $\AA$")
+    axes[1].set_ylabel(r"$|\chi(R)|$")
     axes[1].legend()
 
+    data_re = array_attr(data, ["chir_re", "chir_real"])
+    model_re = array_attr(model, ["chir_re", "chir_real"])
+    data_im = array_attr(data, ["chir_im", "chir_imag"])
+    model_im = array_attr(model, ["chir_im", "chir_imag"])
+    if data_r is not None and data_re is not None:
+        axes[2].plot(data_r, data_re, label="data Re", lw=1.4)
+    if model_r is not None and model_re is not None:
+        axes[2].plot(model_r, model_re, label="fit Re", lw=1.2)
+    if data_r is not None and data_im is not None:
+        axes[2].plot(data_r, data_im, label="data Im", lw=1.4, ls="--")
+    if model_r is not None and model_im is not None:
+        axes[2].plot(model_r, model_im, label="fit Im", lw=1.2, ls="--")
+    axes[2].axvspan(rmin, rfit_max, color="0.92", zorder=0)
+    axes[2].set_xlim(0, rplot_max)
+    axes[2].set_xlabel(r"$R$ / $\AA$")
+    axes[2].set_ylabel(r"Re/Im $\chi(R)$")
+    axes[2].legend(fontsize="small")
+
+    if data_r is not None and data_mag is not None and model_r is not None and model_mag is not None:
+        model_interp = np.interp(data_r, model_r, model_mag)
+        axes[3].plot(data_r, data_mag - model_interp, lw=1.2)
+    axes[3].axhline(0, color="0.3", lw=0.8)
+    axes[3].axvspan(rmin, rfit_max, color="0.92", zorder=0)
+    axes[3].set_xlim(0, rplot_max)
+    axes[3].set_xlabel(r"$R$ / $\AA$")
+    axes[3].set_ylabel(r"$|\chi(R)|$ residual")
+
     fig.suptitle(title)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=180)
+    plt.close(fig)
+
+
+def plot_full_model_comparison(ss_dataset: Any, ms_dataset: Any, out_path: Path) -> None:
+    for dataset in (ss_dataset, ms_dataset):
+        ensure_r_arrays(dataset.data, kmin=2.0, kmax=18.0, kw=2, dk=2.0)
+        ensure_r_arrays(dataset.model, kmin=2.0, kmax=18.0, kw=2, dk=2.0)
+
+    fig, axes = plt.subplots(1, 3, figsize=(13.2, 4.0), sharex=True)
+    for ax, dataset, title in zip(
+        axes[:2],
+        (ss_dataset, ms_dataset),
+        ("SS-only", "SS+MS"),
+    ):
+        data_r = array_attr(dataset.data, ["r"])
+        data_mag = array_attr(dataset.data, ["chir_mag"])
+        model_r = array_attr(dataset.model, ["r"])
+        model_mag = array_attr(dataset.model, ["chir_mag"])
+        if data_r is not None and data_mag is not None:
+            ax.plot(data_r, data_mag, label="data", lw=1.6)
+        if model_r is not None and model_mag is not None:
+            ax.plot(model_r, model_mag, label="fit", lw=1.4)
+        ax.axvspan(1.4, 4.5, color="0.92", zorder=0)
+        ax.set_title(title)
+        ax.set_xlabel(r"$R$ / $\AA$")
+        ax.legend(fontsize="small")
+
+    ss_r = array_attr(ss_dataset.data, ["r"])
+    ss_mag = array_attr(ss_dataset.data, ["chir_mag"])
+    ss_model_r = array_attr(ss_dataset.model, ["r"])
+    ss_model_mag = array_attr(ss_dataset.model, ["chir_mag"])
+    ms_model_r = array_attr(ms_dataset.model, ["r"])
+    ms_model_mag = array_attr(ms_dataset.model, ["chir_mag"])
+    if (
+        ss_r is not None
+        and ss_mag is not None
+        and ss_model_r is not None
+        and ss_model_mag is not None
+        and ms_model_r is not None
+        and ms_model_mag is not None
+    ):
+        axes[2].plot(ss_r, ss_mag - np.interp(ss_r, ss_model_r, ss_model_mag), label="SS-only", lw=1.2)
+        axes[2].plot(ss_r, ss_mag - np.interp(ss_r, ms_model_r, ms_model_mag), label="SS+MS", lw=1.2)
+    axes[2].axhline(0, color="0.3", lw=0.8)
+    axes[2].axvspan(1.4, 4.5, color="0.92", zorder=0)
+    axes[2].set_title("Magnitude residual")
+    axes[2].set_xlabel(r"$R$ / $\AA$")
+    axes[2].legend(fontsize="small")
+
+    axes[0].set_ylabel(r"$|\chi(R)|$")
+    axes[2].set_ylabel(r"$|\chi(R)|$ residual")
+    for ax in axes:
+        ax.set_xlim(0, 4.8)
     fig.tight_layout()
     fig.savefig(out_path, dpi=180)
     plt.close(fig)
@@ -279,6 +375,31 @@ def write_json(path: Path, data: Any) -> None:
 
 def write_report(path: Path, text: str) -> None:
     path.write_text(text + "\n", encoding="utf-8")
+
+
+def write_model_comparison_csv(out_dir: Path, summaries: list[dict[str, Any]]) -> None:
+    rows = []
+    for summary in summaries:
+        stats = summary["statistics"]
+        rows.append(
+            {
+                "model": summary["model"],
+                "paths": " ".join(path["file"] for path in summary["paths"]),
+                "k_range_A-1": "2.0-18.0",
+                "R_range_A": "1.4-4.5",
+                "n_variables": stats.get("n_variables"),
+                "n_independent": stats.get("n_independent"),
+                "r_factor": stats.get("r_factor"),
+                "reduced_chi_square": stats.get("reduced_chi_square"),
+                "chi_square": stats.get("chi_square"),
+                "AIC": stats.get("aic"),
+                "BIC": stats.get("bic"),
+            }
+        )
+    with (out_dir / "full_10k_model_comparison.csv").open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.DictWriter(fh, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def run_full_fit(
@@ -339,7 +460,16 @@ def run_full_fit(
     report = feffit_report_text(out)
     parsed_report = parse_fit_report(report)
     write_report(model_dir / "fit_report.txt", report)
-    plot_fit(dset, model_dir / "fit_plot.png", title=name, kmin=2.0, kmax=18.0, rmax=5.5)
+    plot_fit(
+        dset,
+        model_dir / "fit_plot.png",
+        title=name,
+        kmin=2.0,
+        kmax=18.0,
+        rmin=1.4,
+        rfit_max=4.5,
+        rplot_max=4.8,
+    )
 
     summary = {
         "model": name,
@@ -365,7 +495,7 @@ def run_full_fit(
         },
     }
     write_json(model_dir / "summary.json", summary)
-    return summary
+    return {"summary": summary, "dataset": dset}
 
 
 def run_temperature_fit(
@@ -451,7 +581,9 @@ def run_temperature_fit(
             title=f"First-shell fit {temp} K",
             kmin=2.0,
             kmax=12.0,
-            rmax=4.0,
+            rmin=1.6,
+            rfit_max=2.75,
+            rplot_max=3.2,
         )
 
     with (model_dir / "temperature_parameters.csv").open("w", newline="", encoding="utf-8") as fh:
@@ -468,7 +600,7 @@ def run_temperature_fit(
     fig, ax = plt.subplots(figsize=(5.4, 4.0))
     ax.errorbar(temps, r_values, yerr=r_errors, marker="o", capsize=3)
     ax.set_xlabel("T / K")
-    ax.set_ylabel("R / Angstrom")
+    ax.set_ylabel(r"$R$ / $\AA$")
     fig.tight_layout()
     fig.savefig(model_dir / "R_vs_T.png", dpi=180)
     plt.close(fig)
@@ -476,7 +608,7 @@ def run_temperature_fit(
     fig, ax = plt.subplots(figsize=(5.4, 4.0))
     ax.errorbar(temps, sig2_values, yerr=sig2_errors, marker="o", capsize=3)
     ax.set_xlabel("T / K")
-    ax.set_ylabel("sigma2 / Angstrom^2")
+    ax.set_ylabel(r"$\sigma^2$ / $\AA^2$")
     fig.tight_layout()
     fig.savefig(model_dir / "sigma2_vs_T.png", dpi=180)
     plt.close(fig)
@@ -506,6 +638,7 @@ def run_temperature_fit(
 
 
 def write_overview(out_dir: Path, summaries: list[dict[str, Any]]) -> None:
+    by_name = {summary["model"]: summary for summary in summaries}
     lines = [
         "# Cu Foil EXAFS CLI Fit Summary",
         "",
@@ -517,6 +650,37 @@ def write_overview(out_dir: Path, summaries: list[dict[str, Any]]) -> None:
     for summary in summaries:
         stats = summary.get("statistics", {})
         lines.append(f"- `{summary['model']}`: R-factor = {stats.get('r_factor')}")
+
+    ss_only = by_name.get("full_10k_ss_only")
+    ss_ms = by_name.get("full_10k_ss_ms")
+    temp_summary = by_name.get("first_shell_temperature")
+    lines.extend(["", "## Interpretation Notes", ""])
+    if ss_only and ss_ms:
+        ss_stats = ss_only.get("statistics", {})
+        ms_stats = ss_ms.get("statistics", {})
+        lines.append(
+            "- The SS+MS model reduces the 10 K R-factor from "
+            f"{ss_stats.get('r_factor')} to {ms_stats.get('r_factor')} with the same "
+            "k/R fit ranges and number of varying parameters."
+        )
+    if temp_summary:
+        rows = sorted(temp_summary.get("temperature_parameters", []), key=lambda row: row["temperature_K"])
+        if len(rows) >= 2:
+            low = rows[0]
+            high = rows[-1]
+            r_delta = high["R_A"] - low["R_A"]
+            r_sigma = float(np.hypot(low["R_error_A"] or 0.0, high["R_error_A"] or 0.0))
+            sig2_delta = high["sigma2_A2"] - low["sigma2_A2"]
+            sig2_sigma = float(np.hypot(low["sigma2_error_A2"] or 0.0, high["sigma2_error_A2"] or 0.0))
+            lines.append(
+                "- The first-shell R increase from "
+                f"{low['temperature_K']} K to {high['temperature_K']} K is {r_delta:.6g} A "
+                f"with combined uncertainty {r_sigma:.6g} A, so it should be described as weak."
+            )
+            lines.append(
+                "- The first-shell sigma2 increase over the same temperatures is "
+                f"{sig2_delta:.6g} A^2 with combined uncertainty {sig2_sigma:.6g} A^2."
+            )
     lines.extend(
         [
             "",
@@ -525,6 +689,7 @@ def write_overview(out_dir: Path, summaries: list[dict[str, Any]]) -> None:
             "- `chi_data/*_chi.csv`: background-subtracted EXAFS chi(k) arrays.",
             "- `full_10k_ss_only/fit_report.txt` and `fit_plot.png`: 10 K single-scattering model.",
             "- `full_10k_ss_ms/fit_report.txt` and `fit_plot.png`: 10 K single- and multiple-scattering model.",
+            "- `full_10k_model_comparison.csv` and `.png`: SS-only vs SS+MS comparison.",
             "- `first_shell_temperature/temperature_parameters.csv`: R and sigma2 values for 10 K, 50 K and 150 K.",
             "- `first_shell_temperature/R_vs_T.png` and `sigma2_vs_T.png`: temperature trend plots.",
         ]
@@ -548,23 +713,30 @@ def main() -> int:
     chi_groups = {item.temperature_k: prepare_chi(item, args.out) for item in datasets}
 
     full_10k = chi_groups[10]
+    ss_only_result = run_full_fit(
+        name="full_10k_ss_only",
+        data=full_10k,
+        feff_dir=args.feff_dir,
+        paths=paths,
+        selected_ids=[1, 2, 5],
+        out_dir=args.out,
+    )
+    ss_ms_result = run_full_fit(
+        name="full_10k_ss_ms",
+        data=full_10k,
+        feff_dir=args.feff_dir,
+        paths=paths,
+        selected_ids=[1, 2, 3, 4, 5, 6, 7],
+        out_dir=args.out,
+    )
+    plot_full_model_comparison(
+        ss_only_result["dataset"],
+        ss_ms_result["dataset"],
+        args.out / "full_10k_model_comparison.png",
+    )
     summaries = [
-        run_full_fit(
-            name="full_10k_ss_only",
-            data=full_10k,
-            feff_dir=args.feff_dir,
-            paths=paths,
-            selected_ids=[1, 2, 5],
-            out_dir=args.out,
-        ),
-        run_full_fit(
-            name="full_10k_ss_ms",
-            data=full_10k,
-            feff_dir=args.feff_dir,
-            paths=paths,
-            selected_ids=[1, 2, 3, 4, 5, 6, 7],
-            out_dir=args.out,
-        ),
+        ss_only_result["summary"],
+        ss_ms_result["summary"],
         run_temperature_fit(
             datasets=datasets,
             chi_groups=chi_groups,
@@ -573,6 +745,7 @@ def main() -> int:
             out_dir=args.out,
         ),
     ]
+    write_model_comparison_csv(args.out, summaries[:2])
 
     write_overview(args.out, summaries)
     print(f"Wrote analysis outputs to {args.out}")

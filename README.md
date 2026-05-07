@@ -57,6 +57,7 @@ artifacts/feff/cu/feff*.dat
 artifacts/analysis/**/*.txt
 artifacts/analysis/**/*.csv
 artifacts/analysis/**/*.png
+artifacts/analysis_env/*
 ```
 
 These files are uploaded by CI and are not committed.
@@ -67,8 +68,8 @@ These files are uploaded by CI and are not committed.
 | --- | --- | --- | --- |
 | Install Demeter/Horae tools | `apt-get install horae` | Installs the Demeter/Horae utilities checked by the pipeline, including `atoms`, `athena` and `artemis`. | [Debian `horae` package](https://packages.debian.org/sid/horae) |
 | Install IFEFFIT tools | `apt-get install ifeffit` | Installs the command-line XAFS/EXAFS backend used here, including `ifeffit`, `feffit` and `feff6`. | [Ubuntu `ifeffit` package](https://launchpad.net/ubuntu/jammy/+package/ifeffit) |
-| Generate FEFF input | `atoms -q -f -o feff.inp atoms.inp` | Converts the Cu crystallographic input into a FEFF input file. The `atoms` manpage defines `atoms` as a crystallographic input converter for FEFF and documents the `-o` output option. | [`atoms(1)` manpage](https://manpages.debian.org/testing/horae/atoms.1.en.html) |
-| Check EXAFS backend | `ifeffit -x 'show @commands'` | Starts IFEFFIT non-interactively and prints available IFEFFIT commands for the CI probe log. The package description identifies IFEFFIT as a command-line XAFS analysis program. | [Ubuntu `ifeffit` package](https://launchpad.net/ubuntu/jammy/+package/ifeffit) |
+| Generate FEFF input | `atoms -q -f -r 6.0 -o feff.inp atoms.inp` | Converts the Cu crystallographic input into a FEFF6 input file with a larger atom cluster. The workflow then keeps FEFF path search at `RMAX 5.0` for the 4.5 Angstrom fit. | [`atoms(1)` manpage](https://manpages.debian.org/testing/horae/atoms.1.en.html) |
+| Check EXAFS backend | `printf 'show @commands\nquit\n' \| ifeffit` | Starts IFEFFIT non-interactively and records command-shell startup in the CI probe log. The package description identifies IFEFFIT as a command-line XAFS analysis program. | [Ubuntu `ifeffit` package](https://launchpad.net/ubuntu/jammy/+package/ifeffit) |
 | Run FEFF6 path generation | `feff6` | Runs FEFF6 in the folder containing `feff.inp`, producing `feffNNNN.dat` path outputs consumed by the fitting script. CI verifies the installed executable through `dpkg -L ifeffit` in `artifacts/probe/probe.log`. | [Ubuntu `ifeffit` package](https://launchpad.net/ubuntu/jammy/+package/ifeffit) |
 | Extract measured datasets | `scripts/extract_cu_project.py data/inputs/cu.prj.gz` | Extracts the three stored `mu(E)` arrays from the compressed Cu project into CSV/JSON artifacts. This script is repository code because the project file is a serialized Demeter/Athena data container. | [script](scripts/extract_cu_project.py) |
 | Fit EXAFS models | `scripts/fit_exafs_larch.py` | Converts `mu(E)` to `chi(k)` with `autobk`, fits generated FEFF paths with `feffit`, and writes fit reports, parameter tables and plots. | [XrayLarch FEFF fitting](https://xraypy.github.io/xraylarch/xafs_feffit.html) |

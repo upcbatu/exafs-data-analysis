@@ -21,10 +21,7 @@ rm -rf "$OUT/cu"
 mkdir -p "$OUT/cu"
 cp "$ROOT/data/inputs/atoms.inp" "$OUT/cu/atoms.inp"
 
-(
-  cd "$OUT/cu"
-  atoms -q -f -o feff.inp atoms.inp > atoms.stdout.log 2> atoms.stderr.log
-)
+generate_feff6_input "$OUT/cu"
 run_feff6_in_dir "$FEFF_RUNNER" "$OUT/cu" > "$OUT/cu/feff.log" 2>&1
 
 if [[ ! -s "$OUT/cu/feff.inp" ]]; then

@@ -18,6 +18,12 @@ import re
 from pathlib import Path
 from typing import Any
 
+EXPECTED_DATASETS = {
+    "cu010k.dat": 612,
+    "cu050k.dat": 620,
+    "cu150k.dat": 618,
+}
+
 
 def read_project(path: Path) -> str:
     with path.open("rb") as fh:
@@ -101,8 +107,12 @@ def write_outputs(records: list[dict[str, Any]], out_dir: Path) -> None:
             "source_file": args.get("file"),
             "e0_eV": float(args["bkg_e0"]) if "bkg_e0" in args else None,
             "edge_step": float(args["bkg_step"]) if "bkg_step" in args else None,
+            "bkg_rbkg": float(args["bkg_rbkg"]) if "bkg_rbkg" in args else None,
+            "bkg_kw": float(args["bkg_kw"]) if "bkg_kw" in args else None,
+            "bkg_window": args.get("bkg_win"),
             "fft_kmin": float(args["fft_kmin"]) if "fft_kmin" in args else None,
             "fft_kmax": float(args["fft_kmax"]) if "fft_kmax" in args else None,
+            "fft_dk": float(args["fft_dk"]) if "fft_dk" in args else None,
             "fft_window": args.get("fft_win"),
             "titles": args.get("titles", []),
             "csv": csv_path.name,
@@ -124,6 +134,21 @@ def main() -> int:
     records = extract_records(read_project(args.project))
     if not records:
         raise SystemExit(f"No Athena records found in {args.project}")
+
+    labels = {str(rec["label"]) for rec in records}
+    expected_labels = set(EXPECTED_DATASETS)
+    if labels != expected_labels:
+        raise SystemExit(
+            f"Unexpected dataset labels: got {sorted(labels)}, expected {sorted(expected_labels)}"
+        )
+    for rec in records:
+        label = str(rec["label"])
+        expected_points = EXPECTED_DATASETS[label]
+        if len(rec["energy_eV"]) != expected_points:
+            raise SystemExit(
+                f"Unexpected point count for {label}: got {len(rec['energy_eV'])}, "
+                f"expected {expected_points}"
+            )
 
     write_outputs(records, args.out)
     print(f"Extracted {len(records)} datasets to {args.out}")

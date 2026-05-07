@@ -26,6 +26,17 @@ run_capture() {
   return 0
 }
 
+run_ifeffit_probe() {
+  log ""
+  log "## ifeffit command probe"
+  set +e
+  printf 'show @commands\nquit\n' | ifeffit >>"$LOG" 2>&1
+  local status="${PIPESTATUS[1]}"
+  set -e
+  log "[exit $status] printf 'show @commands\\nquit\\n' | ifeffit"
+  return "$status"
+}
+
 log "# EXAFS CLI Stack Probe"
 log "Working root: $ROOT"
 log "Date: $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
@@ -55,9 +66,10 @@ fi
 
 run_capture "atoms version" atoms -v
 run_capture "atoms help" atoms -h
-run_capture "ifeffit startup" ifeffit -x 'show @commands'
+run_ifeffit_probe
 run_capture "ifeffit package files" dpkg -L ifeffit
 run_capture "horae package files" dpkg -L horae
+run_capture "apt package versions" dpkg-query -W -f='${Package}\t${Version}\n' horae ifeffit gnuplot python3-numpy python3-matplotlib
 if [[ -n "$FEFF_RUNNER" ]]; then
   run_capture "FEFF6 runner help" "$FEFF_RUNNER" -h
 fi
@@ -75,10 +87,7 @@ cp "$ROOT/data/inputs/atoms.inp" "$WORK/atoms.inp"
 
 log ""
 log "# Atoms -> feff.inp"
-(
-  cd "$WORK"
-  atoms -q -f -o feff.inp atoms.inp > atoms.stdout.log 2> atoms.stderr.log
-)
+generate_feff6_input "$WORK"
 
 if [[ ! -s "$WORK/feff.inp" ]]; then
   log "Atoms did not produce a non-empty feff.inp."
