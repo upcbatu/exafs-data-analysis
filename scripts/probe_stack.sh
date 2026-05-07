@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$ROOT/scripts/common.sh"
 OUT="$ROOT/artifacts/probe"
 mkdir -p "$OUT"
 
@@ -40,15 +41,26 @@ for cmd in "${commands[@]}"; do
     log "OK      $cmd -> $(command -v "$cmd")"
   else
     log "MISSING $cmd"
-    case "$cmd" in
-      atoms|ifeffit|feffit|feff6l) missing=1 ;;
-    esac
+    case "$cmd" in atoms|ifeffit) missing=1 ;; esac
   fi
 done
+
+FEFF_RUNNER="$(find_feff_runner || true)"
+if [[ -n "$FEFF_RUNNER" ]]; then
+  log "OK      FEFF runner -> $FEFF_RUNNER"
+else
+  log "MISSING FEFF runner: expected one of feff6l or feffit"
+  missing=1
+fi
 
 run_capture "atoms version" atoms -v
 run_capture "atoms help" atoms -h
 run_capture "ifeffit startup" ifeffit -x 'show @commands'
+run_capture "ifeffit package files" dpkg -L ifeffit
+run_capture "horae package files" dpkg -L horae
+if [[ -n "$FEFF_RUNNER" ]]; then
+  run_capture "FEFF runner help" "$FEFF_RUNNER" -h
+fi
 
 if [[ "$missing" -ne 0 ]]; then
   log ""
@@ -75,10 +87,10 @@ fi
 log "Generated $WORK/feff.inp"
 
 log ""
-log "# FEFF run"
+log "# FEFF run: $FEFF_RUNNER"
 (
   cd "$WORK"
-  feff6l > feff6l.log 2>&1
+  "$FEFF_RUNNER" > feff.log 2>&1
 )
 
 log "FEFF output files:"

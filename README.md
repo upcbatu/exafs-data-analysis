@@ -51,3 +51,14 @@ artifacts/feff/cu/feff*.dat
 ```
 
 These files are uploaded by CI and are not committed.
+
+## References
+
+- `horae` provides the Demeter/Horae tools used here, including `atoms`,
+  `athena` and `artemis`: https://packages.debian.org/sid/horae
+- `atoms` is the command-line tool used to generate `feff.inp` from
+  `atoms.inp`: https://manpages.debian.org/testing/horae/atoms.1.en.html
+- `ifeffit` provides the command-line XAFS/EXAFS backend and `feffit`:
+  https://packages.debian.org/bookworm/ifeffit
+- The workflow runs on GitHub-hosted Ubuntu runners:
+  https://docs.github.com/en/actions/reference/github-hosted-runners-reference

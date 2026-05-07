@@ -2,6 +2,7 @@
 set -Eeuo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$ROOT/scripts/common.sh"
 OUT="$ROOT/artifacts/feff"
 mkdir -p "$OUT"
 
@@ -10,8 +11,9 @@ if ! command -v atoms >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! command -v feff6l >/dev/null 2>&1; then
-  echo "Missing required command: feff6l" >&2
+FEFF_RUNNER="$(find_feff_runner || true)"
+if [[ -z "$FEFF_RUNNER" ]]; then
+  echo "Missing required FEFF runner: expected feff6l or feffit" >&2
   exit 1
 fi
 
@@ -22,7 +24,7 @@ cp "$ROOT/data/inputs/atoms.inp" "$OUT/cu/atoms.inp"
 (
   cd "$OUT/cu"
   atoms -q -f -o feff.inp atoms.inp > atoms.stdout.log 2> atoms.stderr.log
-  feff6l > feff6l.log 2>&1
+  "$FEFF_RUNNER" > feff.log 2>&1
 )
 
 if [[ ! -s "$OUT/cu/feff.inp" ]]; then
