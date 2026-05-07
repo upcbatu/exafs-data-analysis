@@ -1,0 +1,3 @@
+model,paths,k_range_A-1,R_range_A,n_variables,n_independent,r_factor,reduced_chi_square,chi_square,AIC,BIC
+full_10k_ss_only,feff0001.dat feff0002.dat feff0005.dat,2.0-18.0,1.4-4.5,6.0,32.576,0.04267437,30.5778991,812.648664,116.788725,125.690243
+full_10k_ss_ms,feff0001.dat feff0002.dat feff0003.dat feff0004.dat feff0005.dat feff0006.dat feff0007.dat,2.0-18.0,1.4-4.5,6.0,32.576,0.02018103,14.4605216,384.307749,92.3937629,101.295281

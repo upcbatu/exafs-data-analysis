@@ -5,8 +5,12 @@
   "source_file": "/home/bruce/codes/horae/examples/athena/cu010k.dat",
   "e0_eV": 8977.58,
   "edge_step": 2.3266765,
+  "bkg_rbkg": 1.0,
+  "bkg_kw": 2.0,
+  "bkg_window": "kaiser-bessel",
   "fft_kmin": 2.0,
   "fft_kmax": 18.0,
+  "fft_dk": 1.0,
   "fft_window": "hanning",
   "titles": [
     "Cu foil at 10K",

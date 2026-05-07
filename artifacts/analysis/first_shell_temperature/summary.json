@@ -10,47 +10,49 @@
   "statistics": {
     "n_variables": 8.0,
     "n_independent": 8.321,
-    "chi_square": 276.115928,
-    "reduced_chi_square": 16.2771743,
-    "r_factor": 0.00216343
+    "chi_square": 273.198572,
+    "reduced_chi_square": 16.1051947,
+    "r_factor": 0.00214058,
+    "aic": 75.7321028,
+    "bic": 85.4713831
   },
   "common_parameters": {
     "amp": {
-      "value": 0.9140404,
-      "stderr": 0.0271739
+      "value": 0.9200388,
+      "stderr": 0.0272506
     },
     "del_e0": {
-      "value": 5.2788859,
-      "stderr": 0.3108056
+      "value": 5.3438494,
+      "stderr": 0.3095153
     }
   },
   "temperature_parameters": [
     {
       "temperature_K": 10,
-      "delR_A": -0.005129,
-      "delR_error_A": 0.0018516,
-      "R_A": 2.547571,
-      "R_error_A": 0.0018516,
-      "sigma2_A2": 0.0035568,
-      "sigma2_error_A2": 0.00023352
+      "delR_A": -0.0048857,
+      "delR_error_A": 0.0018422,
+      "R_A": 2.5478143,
+      "R_error_A": 0.0018422,
+      "sigma2_A2": 0.003546,
+      "sigma2_error_A2": 0.0002323
     },
     {
       "temperature_K": 50,
-      "delR_A": -0.0049646,
-      "delR_error_A": 0.0018282,
-      "R_A": 2.5477354,
-      "R_error_A": 0.0018282,
-      "sigma2_A2": 0.003642,
-      "sigma2_error_A2": 0.00023139
+      "delR_A": -0.0047208,
+      "delR_error_A": 0.001819,
+      "R_A": 2.5479792000000003,
+      "R_error_A": 0.001819,
+      "sigma2_A2": 0.0036312,
+      "sigma2_error_A2": 0.00023019
     },
     {
       "temperature_K": 150,
-      "delR_A": -0.0021687,
-      "delR_error_A": 0.0020109,
-      "R_A": 2.5505313000000003,
-      "R_error_A": 0.0020109,
-      "sigma2_A2": 0.0054148,
-      "sigma2_error_A2": 0.00025553
+      "delR_A": -0.0019107,
+      "delR_error_A": 0.0020005,
+      "R_A": 2.5507893000000004,
+      "R_error_A": 0.0020005,
+      "sigma2_A2": 0.0054019,
+      "sigma2_error_A2": 0.00025414
     }
   ]
 }

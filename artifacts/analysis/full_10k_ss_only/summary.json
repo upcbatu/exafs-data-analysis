@@ -14,47 +14,49 @@
       "nleg": 2,
       "degeneracy": 6.0,
       "reff": 3.61,
-      "amp_ratio": 22.981
+      "amp_ratio": 22.98
     },
     {
       "file": "feff0005.dat",
       "nleg": 2,
       "degeneracy": 24.0,
       "reff": 4.4213,
-      "amp_ratio": 55.387
+      "amp_ratio": 55.405
     }
   ],
   "statistics": {
     "n_variables": 6.0,
     "n_independent": 32.576,
-    "chi_square": 855.494601,
-    "reduced_chi_square": 32.1900825,
-    "r_factor": 0.04492432
+    "chi_square": 812.648664,
+    "reduced_chi_square": 30.5778991,
+    "r_factor": 0.04267437,
+    "aic": 116.788725,
+    "bic": 125.690243
   },
   "parameters": {
     "amp": {
-      "value": 0.9315294,
-      "stderr": 0.0817755
+      "value": 0.9391078,
+      "stderr": 0.0803003
     },
     "del_e0": {
-      "value": 4.286176,
-      "stderr": 0.9488508
+      "value": 4.461208,
+      "stderr": 0.919396
     },
     "alpha": {
-      "value": -0.001477,
-      "stderr": 0.0017082
+      "value": -0.0013277,
+      "stderr": 0.0016558
     },
     "sig2_1": {
-      "value": 0.0036308,
-      "stderr": 0.00050997
+      "value": 0.0036247,
+      "stderr": 0.00049671
     },
     "sig2_2": {
-      "value": 0.0048841,
-      "stderr": 0.0016521
+      "value": 0.0048717,
+      "stderr": 0.0016094
     },
     "sig2_3": {
-      "value": 0.0050319,
-      "stderr": 0.0008151
+      "value": 0.0049894,
+      "stderr": 0.00079009
     }
   }
 }
